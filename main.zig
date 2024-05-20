@@ -1,6 +1,7 @@
 const Eng = @import("engine.zig");
 const std = Eng.std;
 const Global = Eng.Global;
+const color = @import("color.zig");
 
 // =========================================================== TYPES ============================================================ //
 
@@ -24,6 +25,7 @@ pub fn main() !void {
 
     try ReadData(global, &Colors, &RRs, &Utils);
     Print(global, "Cards read in.\n", .{});
+    Print(global, "Color Test {s}R{s}G{s}B{s}\n", .{color.RGBForeCode(255,0,0), color.RGBForeCode(0,255,0), color.RGBForeCode(0,0,255), color.RGBForeCode(255,255,255), });
 
     const game_state: *Eng.GameState = try Eng.Setup_Game(global, &Colors, &RRs, &Utils);
     _ = game_state;

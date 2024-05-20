@@ -26,5 +26,5 @@ pub fn main() !void {
     Print(global, "Color test begin\n", .{});
     Print(global, "\x1b[38;2;255;0;0m"++"This is Red text\n", .{});
     Print(global, "\x1b[0m"++"This is normal text\n", .{});
-    Print(global, color.RGBCode(255, 0, 0)++"This is done using the lib\n", .{});
+    Print(global, color.RGBForeCode(255, 0, 0)++"This is done using the lib\n", .{});
 }
