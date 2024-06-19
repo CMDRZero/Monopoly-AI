@@ -104,5 +104,46 @@ pub fn ReadData(global: Global, Colors: *[22]Eng.Card, RRs: *[4]Eng.Card, Utils:
     }
 }
 
+pub fn ReadMap(comptime height: u8, comptime width: u8, dest: *[height][width] char) !void {
+    var file = try std.fs.cwd().openFile("mapcolor.txt", .{});
+    defer file.close();
+    var file_reader = file.reader();
 
+    for (0..height) |row| {
+        for (0..width) |col| {
+            const byte = try ReadByte(&file_reader);
+            if (byte == .thin and byte.thin == '\n') {
+                std.debug.print("Found {} @ row: {}, col: {} ", .{byte, row, col});
+                return error.UnexpectedNewline;
+            }
+            dest[row][col] = byte;
+        }
+        var byte = try ReadByte(&file_reader);
+        if ( !(byte == .thin and byte.thin == '\r') ) {
+            std.debug.print("1st Found {} @ end of row: {} ", .{byte, row});
+            return error.ExpectedNewline;
+        }
+        byte = try ReadByte(&file_reader);
+        if ( !(byte == .thin and byte.thin == '\n') ) {
+            std.debug.print("2nd Found {} @ end of row: {} ", .{byte, row});
+            return error.ExpectedNewline;
+        }
+    }
+}
 
+pub const char = union(enum){
+    thin: u8,
+    wide: [3]u8,
+};
+
+fn ReadByte(reader: anytype) !char {
+    const initial_byte = try reader.readByte();
+    
+    if (initial_byte & 0b1111_0000 == 0b1110_0000){
+        const byte2 = try reader.readByte();
+        const byte3 = try reader.readByte();
+        return char{.wide = .{initial_byte, byte2, byte3}};
+    } else {
+        return char{.thin = initial_byte};
+    }
+}

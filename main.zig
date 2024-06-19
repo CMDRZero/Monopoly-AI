@@ -3,6 +3,10 @@ const std = Eng.std;
 const Global = Eng.Global;
 const colorlib = @import("color.zig");
 const setup = @import("setup.zig");
+const Color = colorlib.Color;
+
+const mapwidth = 109;
+const mapheight = 49;
 
 // =========================================================== TYPES ============================================================ //
 
@@ -33,16 +37,36 @@ pub fn main() !void {
     _ = game_state;
 
     Print(global, "New game initialized\n", .{});
+
+    var Map: [mapheight][mapwidth] setup.char = undefined;
+    try setup.ReadMap(mapheight, mapwidth, &Map);
+    try DisplayMap(global, Map);
+    //Print(global, "test character {c}", .{220});
 }
 
 // =========================================================== FUNCTIONS ============================================================ //
+
+fn DisplayMap(global: Global, map: [mapheight][mapwidth] setup.char) !void {
+    for (0..mapheight) |row| {
+        for (0..mapwidth) |col| {
+            const sym = map[row][col];
+            if (sym == .thin){
+                try global.stdout.writeByte(sym.thin);
+            } else {
+                try global.stdout.print("{}", .{std.unicode.fmtUtf8(&sym.wide)});
+            }
+        }
+        Print(global, "\n", .{});
+    }
+}
+
 
 /// If the function cannot print to stdout for whatever reason, return error code 74, which seems to be the std-ish error for IO failure, otherwise never err
 fn Print(global: Global, comptime format: []const u8, args: anytype) void {
     global.stdout.print(format, args) catch std.posix.exit(74);
 }
 
-fn ColorPrint(global: Global, color: colorlib.Color, comptime format: []const u8, args: anytype) void {
+fn ColorPrint(global: Global, color: Color, comptime format: []const u8, args: anytype) void {
     global.stdout.print(
         colorlib.RGBForeCode(color.red, color.green, color.blue) 
             ++ format
