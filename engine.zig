@@ -56,14 +56,14 @@ pub const OwnableCard = struct {
     }
 };
 pub const Card = struct {
-    card_type: CardType,
+    card_type: CompCardType,
     name_US: []u8,
     name_UK: []u8,
     cost: u16,
     morgage: u16,
     unmorgage: u16,
-    colordata: ?ColorPropertyCard,
 };
+
 pub const ColorPropertyCard = struct {
     base_rent: u16,
     h1_rent: u16,
@@ -73,6 +73,13 @@ pub const ColorPropertyCard = struct {
     hotel_rent: u16,
     house_cost: u16,
 };
+
+pub const CompCardType = union(CardType){
+    ColorCard: ColorPropertyCard,
+    RailRoad: void,
+    Utility: void,
+};
+
 pub const CardType = enum {
     ColorCard,
     RailRoad,
