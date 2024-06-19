@@ -5,9 +5,6 @@ const colorlib = @import("color.zig");
 const setup = @import("setup.zig");
 const Color = colorlib.Color;
 
-const mapwidth = 109;
-const mapheight = 49;
-
 // =========================================================== TYPES ============================================================ //
 
 // =========================================================== MAIN ============================================================ //
@@ -34,32 +31,61 @@ pub fn main() !void {
     Print(global, "Color Test {s}R{s}G{s}B{s}\n", .{colorlib.RGBForeCode(255,0,0), colorlib.RGBForeCode(0,255,0), colorlib.RGBForeCode(0,0,255), colorlib.RGBForeCode(255,255,255), });
 
     const game_state: *Eng.GameState = try Eng.Setup_Game(global, &Colors, &RRs, &Utils);
-    _ = game_state;
+    //_ = game_state;
 
     Print(global, "New game initialized\n", .{});
-
-    var Map: [mapheight][mapwidth] setup.char = undefined;
-    try setup.ReadMap(mapheight, mapwidth, &Map);
-    try DisplayMap(global, Map);
-    //Print(global, "test character {c}", .{220});
+    
+    DisplayState(global, game_state.*);
 }
 
 // =========================================================== FUNCTIONS ============================================================ //
 
-fn DisplayMap(global: Global, map: [mapheight][mapwidth] setup.char) !void {
-    for (0..mapheight) |row| {
-        for (0..mapwidth) |col| {
-            const sym = map[row][col];
-            if (sym == .thin){
-                try global.stdout.writeByte(sym.thin);
-            } else {
-                try global.stdout.print("{}", .{std.unicode.fmtUtf8(&sym.wide)});
-            }
+
+fn DisplayState(global: Global, gamestate: Eng.GameState, ) void {
+    Print(global, "Player        Property       Owner Price   Status\n", .{});
+    for (0..40) |tilepos| {
+        const tile: Eng.MapTile = gamestate.map[tilepos];
+        switch (tile) {
+            inline .Go, .Community_Chest, .Chance, .Income_Tax, .Luxury_Tax, .Jail, .Just_Visiting, .Free_Parking =>
+                Print(global, "({s})  {s: ^21}\n", .{PlayersAt(gamestate, @intCast(tilepos)), @tagName(tile)}),
+            .Purchaseable => |card| {
+                var owner: u8 = ' ';
+                if (card.owner) |val| {owner = "ABCD"[val];}
+                Print(global, "({s})  {s: ^21}  ({c})  {d: ^5}  {s: ^8}\n", 
+                    .{PlayersAt(gamestate, @intCast(tilepos)), card.card.name_US, owner, card.CurrRent(), FmtHouses(card.houses)});
+                },
         }
-        Print(global, "\n", .{});
     }
 }
 
+fn FmtHouses(num: i4) [] const u8 {
+    return switch (num) {
+        -1 => "Morgaged",
+        0 => "0 Houses",
+        1 => "1 House",
+        2 => "2 Houses",
+        3 => "3 Houses",
+        4 => "4 Houses",
+        5 => "Hotel",
+        else => unreachable,
+    };
+}
+
+fn PlayersAt(gamestate: Eng.GameState, pos: u8) [4]u8 {
+    var ret: [4]u8 = ([1]u8{' '})**4;
+    for (0..4) |id| {
+        if (gamestate.player_states[id]) |player| {
+            if (player.pos == pos){
+                ret[id] = "ABCD"[id];
+            }
+        }
+    }
+    return ret;
+}
+
+// fn PlayersAt(gamestate: Eng.GameState, pos: u8) []u8 {
+//     return std.fmt.format()
+// }
 
 /// If the function cannot print to stdout for whatever reason, return error code 74, which seems to be the std-ish error for IO failure, otherwise never err
 fn Print(global: Global, comptime format: []const u8, args: anytype) void {
