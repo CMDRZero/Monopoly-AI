@@ -432,3 +432,11 @@ pub fn Setup_Game(global: Global, Colors: *[22]Card, RRs: *[4]Card, Utils: *[2]C
 pub fn Pad(comptime len: u32, str: anytype) *const[len:0]u8{
     return str ++ "\x00" ** (len-str.len);
 }
+
+pub fn TakeTurn(gamestate: GameState, id: u2) void {
+    const playerstate = gamestate.player_states[id].?;
+    if (playerstate.jail_time) |time| {
+        _ = time;
+        @panic("TODO: handle jail");
+    }
+}

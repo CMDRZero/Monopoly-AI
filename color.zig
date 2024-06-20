@@ -1,6 +1,8 @@
 const std = @import("std");
 const win32 = @import("win32.zig");
 
+pub const Color = struct {red: u8, blue: u8, green: u8};
+
 pub inline fn RGBForeCode(comptime red: u8, comptime green: u8, comptime blue: u8) []u8 {
     var buf: [32]u8 = undefined;
     return std.fmt.bufPrint(&buf, "\x1b[38;2;{};{};{}m", .{red, green, blue}) catch unreachable;
@@ -9,6 +11,32 @@ pub inline fn RGBForeCode(comptime red: u8, comptime green: u8, comptime blue: u
 pub inline fn RGBBackCode(comptime red: u8, comptime green: u8, comptime blue: u8) []u8 {
     var buf: [32]u8 = undefined;
     return std.fmt.bufPrint(&buf, "\x1b[48;2;{};{};{}m", .{red, green, blue}) catch unreachable;
+}
+
+pub inline fn RGBForeCodeColor(comptime color: Color) []u8 {
+    return RGBForeCode(color.red, color.green, color.blue);
+}
+
+pub inline fn RGBBackCodeColor(comptime color: Color) []u8 {
+    return RGBBackCode(color.red, color.green, color.blue);
+}
+
+pub inline fn RunRGBForeCode(red: u8, green: u8, blue: u8) []u8 {
+    var buf: [32]u8 = undefined;
+    return std.fmt.bufPrint(&buf, "\x1b[38;2;{};{};{}m", .{red, green, blue}) catch unreachable;
+}
+
+pub inline fn RunRGBBackCode(red: u8, green: u8, blue: u8) []u8 {
+    var buf: [32]u8 = undefined;
+    return std.fmt.bufPrint(&buf, "\x1b[48;2;{};{};{}m", .{red, green, blue}) catch unreachable;
+}
+
+pub inline fn RunRGBForeCodeColor(color: Color) []u8 {
+    return RunRGBForeCode(color.red, color.green, color.blue);
+}
+
+pub inline fn RunRGBBackCodeColor(color: Color) []u8 {
+    return RunRGBBackCode(color.red, color.green, color.blue);
 }
 
 pub fn RGBEnable() void {
