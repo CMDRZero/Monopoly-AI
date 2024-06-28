@@ -576,7 +576,7 @@ pub fn NumHousesInColor(gamestate: GameState, id: u2, cardtype: CardType, color:
     for (gamestate.cards) |card| {
         if (card.card.card_type == cardtype and card.owner == id and 0 < card.houses and card.houses < 5){
             if(card.card.card_type != .ColorCard or card.card.card_type.ColorCard.color == color){
-                amt += card.houses;
+                amt += @intCast(card.houses);
             }
         }
     }

@@ -27,7 +27,7 @@ pub fn CalcIndex(numOwned: u3, numHouses: u4) u5 {
     return trueInd;
 }
 
-pub fn ValueColor(gamestate: Eng.GameState, id: u2, color: Eng.CardColor, values: ValueStruct) u16 {
+pub fn ValueColor(gamestate: Eng.GameState, id: u2, color: Eng.CardColor, values: []u16) u16 {
     const numOwned = Eng.NumOwned(gamestate, id, .ColorCard, color);
     const numHouses = Eng.NumHousesInColor(gamestate, id, .ColorCard, color);
     return values[CalcIndex(numOwned, numHouses)];
