@@ -15,6 +15,19 @@ pub fn ReadData(global: Global, Colors: *[22]Eng.Card, RRs: *[4]Eng.Card, Utils:
     for (0..22) |i| {
         var colordata = std.mem.zeroes(Eng.ColorPropertyCard);
 
+        //Yes I know how bad this is, but tbf, this file is mostly a mixture of hardcoding and softcoding cuz I just want it to work, not to be extensible
+        colordata.color = switch (i) {
+            0, 1 => .brown,
+            2, 3, 4 => .l_blue,
+            5, 6, 7 => .pink,
+            8, 9, 10 => .orange,
+            11, 12, 13 => .red,
+            14, 15, 16 => .yellow,
+            17, 18, 19 => .green,
+            20, 21 => .d_blue,
+            else => unreachable,
+        };
+
         try file_reader.streamUntilDelimiter(file_buffer.writer(), '\t', null);
         Colors[i].name_US = try file_buffer.toOwnedSlice();
 
@@ -68,7 +81,7 @@ pub fn ReadData(global: Global, Colors: *[22]Eng.Card, RRs: *[4]Eng.Card, Utils:
     try file_reader.skipUntilDelimiterOrEof('\n'); //Skip skipline
 
     for (0..4) |i| {
-        Colors[i].card_type = Eng.CardType.RailRoad;
+        RRs[i].card_type = Eng.CardType.RailRoad;
 
         try file_reader.streamUntilDelimiter(file_buffer.writer(), '\t', null);
         RRs[i].name_US = try file_buffer.toOwnedSlice();

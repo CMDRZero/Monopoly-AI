@@ -38,22 +38,44 @@ pub fn main() !void {
     Print(global, "Color Test {s}R{s}G{s}B{s}\n", .{colorlib.RGBForeCode(255,0,0), colorlib.RGBForeCode(0,255,0), colorlib.RGBForeCode(0,0,255), colorlib.RGBForeCode(255,255,255), });
     ColorPrint(global, .{.red = 200, .green = 50, .blue = 200}, "Color Test Alternate\n", .{});
 
-    const game_state: *Eng.GameState = try Eng.Setup_Game(global, &Colors, &RRs, &Utils);
+    const seed: u64 = 1234567890;
+
+    const TickVisualArgs: struct {Global, *Eng.GameState} = undefined;
+
+    const game_state: *Eng.GameState = try Eng.Setup_Game(global, &Colors, &RRs, &Utils, seed);
     //_ = game_state;
+
+    TickVisualArgs = struct {
+        global, game_state
+    };
 
     Print(global, "New game initialized\n", .{});
 
-    //game_state.map[1].Purchaseable.owner = 0;
+    // game_state.map[1].Purchaseable.owner = 0;
+    // game_state.map[1].Purchaseable.houses = 3;
+    
+    // game_state.map[3].Purchaseable.owner = 0;
+    // game_state.map[3].Purchaseable.houses = 2;
 
-    ClearScreen(global);
-    DisplayState(global, game_state.*);
+    //game_state.player_states[0].?.pos = 2;
+
+    var buf: [128]u8 = undefined;
+    while (true) : (_ = try global.stdin.readUntilDelimiter(&buf, '\n')){
+        ClearScreen(global);
+        DisplayState(global, game_state.*);
+        //Eng.TakeTurn(game_state, 0);
+        Eng.PlayRound(game_state);
+    }
+
+    //Print(global, "Brown is a full color set: {}", .{Eng.IsColorSet(game_state.*, Eng.CardColor.brown)});
+    //Print(global, "`A` owns `{}` houses", .{Eng.NumHouses(game_state.*, 0)});
 }
 
 // =========================================================== FUNCTIONS ============================================================ //
 
 
 fn DisplayState(global: Global, gamestate: Eng.GameState, ) void {
-    Print(global, "Player        Property       Owner Price   Status\n", .{});
+    Print(global, "Player        Property       Owner  Price   Status\n", .{});
     for (0..40) |tilepos| {
         const tile: Eng.MapTile = gamestate.map[tilepos];
         var buf: [96] u8 = undefined;
