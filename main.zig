@@ -4,6 +4,7 @@ const Global = Eng.Global;
 const colorlib = @import("color.zig");
 const setup = @import("setup.zig");
 const Color = colorlib.Color;
+const Valueation = @import("valuation.zig");
 
 const playerColors = struct {
     const A: Color = .{.red = 255, .green = 50, .blue = 50};
@@ -59,12 +60,15 @@ pub fn main() !void {
 
     //game_state.player_states[0].?.pos = 2;
 
+    const valueTable = std.mem.zeros(Valueation.ValueStruct);
+
     var buf: [128]u8 = undefined;
     while (true) : (_ = try global.stdin.readUntilDelimiter(&buf, '\n')){
         ClearScreen(global);
         DisplayState(global, game_state.*);
         //Eng.TakeTurn(game_state, 0);
         Eng.PlayRound(game_state);
+        Print(global, "Value of brown is {}", .{Valueation.ValueColor(game_state, 0, .brown, valueTable)});
     }
 
     //Print(global, "Brown is a full color set: {}", .{Eng.IsColorSet(game_state.*, Eng.CardColor.brown)});

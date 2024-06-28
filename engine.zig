@@ -6,25 +6,6 @@ pub const Global = header.Global;
 // =========================================================== STRUCTS ============================================================ //
 //  = = = = = = = = = = = = = = = = = = = = = = = = = = = = =           = = = = = = = = = = = = = = = = = = = = = = = = = = = = =   //
 
-pub fn ValueTypeStruct(comptime valuetype: type) type {
-    return struct {
-        brown: [15]valuetype,
-        l_blue: [24]valuetype,
-        pink: [24]valuetype,
-        orange: [24]valuetype,
-        red: [24]valuetype,
-        green: [24]valuetype,
-        rr: [14]valuetype,
-        utils: [5]valuetype,
-        d_blue: [15]valuetype,
-        gojf: [3]valuetype,
-        jail_time: [3]valuetype,
-        money: [41]valuetype,
-        cascade: [3]valuetype,
-    };
-}
-pub const ValueStruct = ValueTypeStruct(u16);
-
 pub const GameState = struct {
     map: [40]MapTile,
     player_states: [4]?PlayerState,
@@ -544,11 +525,59 @@ pub fn NumHouses(gamestate: GameState, id: u2) u8 {
     return amt;
 }
 
+pub fn MinHouses(gamestate: GameState, cardtype: CardType, color: ?CardColor) i4 {
+    var min: i4 = 6;
+    for (gamestate.cards) |card| {
+        if (card.card.card_type == cardtype and card.houses < min){
+            if(card.card.card_type != .ColorCard or card.card.card_type.ColorCard.color == color){
+                min = card.houses;
+            }
+        }
+    }
+    return min;
+}
+
+pub fn MaxHouses(gamestate: GameState, cardtype: CardType, color: ?CardColor) i4 {
+    var max: i4 = 6;
+    for (gamestate.cards) |card| {
+        if (card.card.card_type == cardtype and card.houses > max){
+            if(card.card.card_type != .ColorCard or card.card.card_type.ColorCard.color == color){
+                max = card.houses;
+            }
+        }
+    }
+    return max;
+}
+
 pub fn NumHotels(gamestate: GameState, id: u2) u8 {
     var amt: u8 = 0;
     for (gamestate.cards) |card| {
         if (card.owner == id and card.houses == 5){
             amt += 1;
+        }
+    }
+    return amt;
+}
+
+pub fn NumOwned(gamestate: GameState, id: u2, cardtype: CardType, color: ?CardColor) u3 {
+    var amt: u3 = 0;
+    for (gamestate.cards) |card| {
+        if (card.card.card_type == cardtype and card.owner == id){
+            if(card.card.card_type != .ColorCard or card.card.card_type.ColorCard.color == color){
+                amt += 1;
+            }
+        }
+    }
+    return amt;
+}
+
+pub fn NumHousesInColor(gamestate: GameState, id: u2, cardtype: CardType, color: ?CardColor) u4 {
+    var amt: u4 = 0;
+    for (gamestate.cards) |card| {
+        if (card.card.card_type == cardtype and card.owner == id and 0 < card.houses and card.houses < 5){
+            if(card.card.card_type != .ColorCard or card.card.card_type.ColorCard.color == color){
+                amt += card.houses;
+            }
         }
     }
     return amt;
